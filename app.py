@@ -180,4 +180,3 @@ def member():
         payload = {"error": INTERNAL_ERROR, "details": str(ex)}
     response_log(transaction_id, component, return_code, payload)
     return make_response(jsonify(payload), return_code)
-
