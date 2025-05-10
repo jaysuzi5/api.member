@@ -155,8 +155,8 @@ def member_service(user_id):
         user = member_create(user_id)
     return user
 
-@app.route("/member", methods=["POST"])
-def member():
+@app.route("/members", methods=["POST"])
+def members():
     return_code = 200
     component = 'member'
     transaction_id = None
