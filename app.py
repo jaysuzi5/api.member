@@ -6,9 +6,11 @@ import logging
 import os
 import uuid
 import psycopg2
+import requests
 from pymongo import MongoClient
 
 # OpenTelemetry Instrumentation
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.instrumentation.psycopg2 import Psycopg2Instrumentor
 Psycopg2Instrumentor().instrument(enable_commenter=True, commenter_options={})
 from opentelemetry.instrumentation.pymongo import PymongoInstrumentor
@@ -211,6 +213,13 @@ def member_create(user_id: str):
 
     return user
 
+def get_cat_fact():
+    fact = ''
+    response = requests.get("https://catfact.ninja/fact")
+    if response.status_code == 200:
+        fact = response.json()['fact']
+    return fact
+
 
 def member_service(transaction_id: str, user_id: str):
     user = member_search(user_id)
@@ -222,6 +231,7 @@ def member_service(transaction_id: str, user_id: str):
         # Simulate a newer event driven process via Kafka
         publish_to_kafka(transaction_id, user, 'registered user')
         new_member.add(1)
+    user['catFact'] = get_cat_fact()
     return user
 
 
