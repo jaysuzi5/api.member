@@ -38,6 +38,15 @@ configuration = {
 }
 # end of System Performance
 
+# Custom Metrics:
+from opentelemetry.metrics import get_meter_provider
+meter = get_meter_provider().get_meter("api.member.metrics")
+new_member = meter.create_counter(
+    name="new_member",
+    description="Number of new registered member",
+    unit="1"
+)
+
 log_level = os.getenv("APP_LOG_LEVEL", "INFO").upper()
 logging.basicConfig(level=getattr(logging, log_level, logging.INFO))
 logging.getLogger('werkzeug').setLevel(getattr(logging, log_level, logging.INFO))
@@ -212,6 +221,7 @@ def member_service(transaction_id: str, user_id: str):
         publish_to_mongodb(transaction_id, user)
         # Simulate a newer event driven process via Kafka
         publish_to_kafka(transaction_id, user, 'registered user')
+        new_member.add(1)
     return user
 
 
